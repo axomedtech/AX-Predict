@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AX-Predict</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+body { background:#f4f7fa; }
+.card { border-radius:15px; }
+</style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container-fluid">
+        <span class="navbar-brand">🏥 AXOMED Admin</span>
+        <a href="/admin/dashboard" class="btn btn-light btn-sm">Dashboard</a>
+    </div>
+</nav>
+
+<div class="container mt-5">
+<div class="card shadow p-4">
+
+<h3 class="text-center mb-4">🧠 Disease Prediction</h3>
+
+<form action="/predict" method="post" class="row g-3">
+
+<div class="col-md-6">
+<label>Name</label>
+<input type="text" name="name" class="form-control" required>
+</div>
+
+<div class="col-md-6">
+<label>Age</label>
+<input type="number" name="age" class="form-control" required>
+</div>
+
+{% for field in ['fever','cough','headache','fatigue'] %}
+<div class="col-md-6">
+<label class="text-capitalize">{{field}}</label>
+<select name="{{field}}" class="form-select">
+<option value="yes">Yes</option>
+<option value="no">No</option>
+</select>
+</div>
+{% endfor %}
+
+<div class="text-center">
+<button class="btn btn-primary px-4">
+<i class="bi bi-activity"></i> Predict
+</button>
+</div>
+
+</form>
+</div>
+</div>
+
+</body>
+</html>

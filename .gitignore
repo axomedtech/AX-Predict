@@ -1,0 +1,62 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+env/
+venv/
+ai-env/
+.venv/
+
+# Conda
+.conda/
+*.conda
+*.env
+
+# Environment files
+environment.yml
+.env
+
+# Secrets
+*.env
+config.json
+secrets.json
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# ML Models (optional - large files)
+*.pkl
+*.joblib
+*.h5
+
+# Data files (optional)
+data/
+datasets/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build / dist
+build/
+dist/
+*.egg-info/
+
+# Temporary files
+*.tmp
+*.bak
+
