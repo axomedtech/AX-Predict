@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session
 import pickle
 import pandas as pd
+import os
 # from src.db import get_connection
 from flask_app.admin.routes import admin
 
@@ -13,8 +14,14 @@ app.secret_key = "secret123"
 # ✅ REGISTER BLUEPRINT
 app.register_blueprint(admin)
 
+# ✅ GET PROJECT ROOT
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# ✅ MODEL PATH
+MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
+
 # ✅ LOAD MODEL
-with open("../model.pkl", "rb") as f:
+with open(MODEL_PATH, "rb") as f:
     model = pickle.load(f)
 
 # ✅ HELPER FUNCTION
@@ -37,7 +44,7 @@ def predict():
     headache = convert(request.form["headache"])
     fatigue = convert(request.form["fatigue"])
 
-    # DataFrame input
+    # ✅ DataFrame input
     input_data = pd.DataFrame(
         [[age, fever, cough, headache, fatigue]],
         columns=['age', 'fever', 'cough', 'headache', 'fatigue']
@@ -45,7 +52,7 @@ def predict():
 
     prediction = model.predict(input_data)[0]
 
-    # Risk logic
+    # ✅ Risk logic
     risk = "HIGH" if prediction in ["Critical Infection", "Viral Infection"] else "LOW"
 
     return render_template(
