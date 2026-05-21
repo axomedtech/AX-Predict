@@ -14,7 +14,7 @@ app.secret_key = "secret123"
 app.register_blueprint(admin)
 
 # ✅ LOAD MODEL
-with open("model.pkl", "rb") as f:
+with open("../model.pkl", "rb") as f:
     model = pickle.load(f)
 
 # ✅ HELPER FUNCTION
