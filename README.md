@@ -66,6 +66,7 @@ cd AX-Predict
 pip install -r requirements.txt
 
 python app.py
+python -m flask_app.app
 ```
 
 ---

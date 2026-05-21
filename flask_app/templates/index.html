@@ -2,61 +2,120 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AX-Predict</title>
+<title>AXOMED Patient Portal</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 <style>
-body { background:#f4f7fa; }
-.card { border-radius:15px; }
+
+body{
+    background:#f4fffb;
+    font-family:Arial, sans-serif;
+}
+
+.navbar{
+    background:#22b07d;
+}
+
+.card{
+    border:none;
+    border-radius:20px;
+    background:white;
+}
+
+.form-control,
+.form-select{
+    border-radius:12px;
+    padding:12px;
+}
+
+.btn-main{
+    background:#22b07d;
+    color:white;
+    border:none;
+    border-radius:12px;
+    padding:12px 30px;
+    transition:0.3s;
+}
+
+.btn-main:hover{
+    background:#1b9469;
+    color:white;
+}
+
+.title{
+    color:#22b07d;
+    font-weight:bold;
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-dark bg-primary">
-    <div class="container-fluid">
-        <span class="navbar-brand">🏥 AXOMED Admin</span>
-        <a href="/admin/dashboard" class="btn btn-light btn-sm">Dashboard</a>
-    </div>
+<nav class="navbar navbar-dark shadow-sm">
+<div class="container-fluid px-4">
+<span class="navbar-brand fw-bold">
+<i class="bi bi-heart-pulse-fill"></i> AXOMED Patient Care
+</span>
+
+<a href="/admin/dashboard" class="btn btn-light btn-sm rounded-pill px-3">
+Admin
+</a>
+</div>
 </nav>
 
-<div class="container mt-5">
-<div class="card shadow p-4">
+<div class="container py-5">
 
-<h3 class="text-center mb-4">🧠 Disease Prediction</h3>
+<div class="row justify-content-center">
+<div class="col-lg-7">
+
+<div class="card shadow-lg p-4">
+
+<div class="text-center mb-4">
+<h2 class="title">Health Prediction Form</h2>
+<p class="text-muted">Enter patient details for disease prediction</p>
+</div>
 
 <form action="/predict" method="post" class="row g-3">
 
 <div class="col-md-6">
-<label>Name</label>
+<label class="mb-2">Patient Name</label>
 <input type="text" name="name" class="form-control" required>
 </div>
 
 <div class="col-md-6">
-<label>Age</label>
+<label class="mb-2">Age</label>
 <input type="number" name="age" class="form-control" required>
 </div>
 
 {% for field in ['fever','cough','headache','fatigue'] %}
+
 <div class="col-md-6">
-<label class="text-capitalize">{{field}}</label>
+<label class="mb-2 text-capitalize">{{field}}</label>
+
 <select name="{{field}}" class="form-select">
 <option value="yes">Yes</option>
 <option value="no">No</option>
 </select>
 </div>
+
 {% endfor %}
 
-<div class="text-center">
-<button class="btn btn-primary px-4">
-<i class="bi bi-activity"></i> Predict
+<div class="text-center mt-4">
+
+<button class="btn btn-main">
+<i class="bi bi-activity"></i>
+Predict Disease
 </button>
+
 </div>
 
 </form>
+
+</div>
+</div>
 </div>
 </div>
 
