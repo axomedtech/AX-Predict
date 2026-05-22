@@ -13,29 +13,69 @@ body{
     font-family:Arial;
 }
 
+/* NAVBAR */
 .navbar{
     background:#22b07d;
 }
 
+/* CARD */
 .card{
     border:none;
     border-radius:20px;
 }
 
+/* TABLE */
 .table thead{
     background:#22b07d;
     color:white;
 }
 
+/* BUTTON */
 .btn-green{
     background:#22b07d;
     color:white;
     border:none;
+    border-radius:10px;
 }
 
 .btn-green:hover{
     background:#1b9469;
+}
+
+/* BADGE */
+.badge{
+    font-size:13px;
+    padding:6px 12px;
+}
+
+/* STATS */
+.stat-box{
+    border-radius:15px;
+    padding:15px;
     color:white;
+    font-weight:bold;
+    text-align:center;
+}
+
+.stat-total{ background:#2c3e50; }
+.stat-high{ background:#e74c3c; }
+.stat-medium{ background:#f39c12; }
+.stat-low{ background:#27ae60; }
+
+/* LIVE DOT */
+.live-dot{
+    height:10px;
+    width:10px;
+    background:red;
+    border-radius:50%;
+    display:inline-block;
+    animation:blink 1s infinite;
+}
+
+@keyframes blink{
+    0%{opacity:1;}
+    50%{opacity:0.2;}
+    100%{opacity:1;}
 }
 
 </style>
@@ -43,11 +83,13 @@ body{
 
 <body>
 
+<!-- NAVBAR -->
 <nav class="navbar navbar-dark shadow-sm">
 <div class="container-fluid px-4">
 
 <span class="navbar-brand fw-bold">
 <i class="bi bi-hospital"></i> AXOMED Admin Panel
+<span class="live-dot ms-2"></span>
 </span>
 
 <a href="/" class="btn btn-light btn-sm rounded-pill">
@@ -57,17 +99,58 @@ Add Patient
 </div>
 </nav>
 
-<div class="container py-5">
+<!-- CONTENT -->
+<div class="container py-4">
 
+<!-- STATS -->
+<div class="row g-3 mb-4">
+
+<div class="col-md-3">
+<div class="stat-box stat-total">
+Total Patients<br>
+<h4>{{ total }}</h4>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="stat-box stat-high">
+High Risk<br>
+<h4>{{ high }}</h4>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="stat-box stat-medium">
+Medium Risk<br>
+<h4>{{ medium }}</h4>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="stat-box stat-low">
+Low Risk<br>
+<h4>{{ low }}</h4>
+</div>
+</div>
+
+</div>
+
+<!-- TABLE -->
 <div class="card shadow-lg p-4">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-3">
+
 <h3>Patient Records</h3>
+
+<small class="text-muted">
+🔴 Live Dashboard (ready for real-time update)
+</small>
+
 </div>
 
 <div class="table-responsive">
 
-<table class="table table-hover align-middle text-center">
+<table class="table table-hover text-center align-middle">
 
 <thead>
 <tr>
@@ -85,16 +168,18 @@ Add Patient
 
 <tr>
 
-<td>{{p[0]}}</td>
-<td>{{p[1]}}</td>
-<td>{{p[2]}}</td>
+<td>{{ p[0] }}</td>
+<td>{{ p[1] }}</td>
+<td>{{ p[2] }}</td>
 
 <td>
 
-{% if p[7] == "High" %}
+{% set risk = p[-1]|default('LOW')|upper %}
+
+{% if risk == "HIGH" %}
 <span class="badge bg-danger">High</span>
 
-{% elif p[7] == "Medium" %}
+{% elif risk == "MEDIUM" %}
 <span class="badge bg-warning text-dark">Medium</span>
 
 {% else %}
@@ -106,16 +191,14 @@ Add Patient
 
 <td>
 
-<a href="/admin/edit/{{p[0]}}" class="btn btn-sm btn-green">
+<a href="/admin/edit/{{ p[0] }}" class="btn btn-sm btn-green">
 <i class="bi bi-pencil"></i>
 </a>
 
 <button class="btn btn-sm btn-danger"
 data-id="{{ p[0] }}"
 onclick="setDelete(this.dataset.id)">
-
 <i class="bi bi-trash"></i>
-
 </button>
 
 </td>
@@ -129,9 +212,12 @@ onclick="setDelete(this.dataset.id)">
 </table>
 
 </div>
-</div>
+
 </div>
 
+</div>
+
+<!-- DELETE MODAL -->
 <div class="modal fade" id="deleteModal">
 
 <div class="modal-dialog">
@@ -156,6 +242,7 @@ Delete
 </a>
 
 </div>
+
 </div>
 </div>
 </div>
@@ -164,16 +251,34 @@ Delete
 
 <script>
 
+// DELETE FUNCTION
 function setDelete(id){
+    document.getElementById("deleteBtn").href =
+    "/admin/delete/" + id;
 
-document.getElementById("deleteBtn").href =
-"/admin/delete/" + id;
-
-new bootstrap.Modal(
-document.getElementById('deleteModal')
-).show();
-
+    new bootstrap.Modal(
+        document.getElementById('deleteModal')
+    ).show();
 }
+
+// ============================
+// 🚀 REAL-TIME READY SYSTEM
+// ============================
+
+// OPTION 1: Auto refresh (simple live dashboard)
+setInterval(() => {
+    fetch(window.location.href)
+        .then(res => res.text())
+        .then(html => {
+            const doc = new DOMParser().parseFromString(html, "text/html");
+            const newTable = doc.querySelector("tbody");
+            const oldTable = document.querySelector("tbody");
+
+            if (newTable && oldTable) {
+                oldTable.innerHTML = newTable.innerHTML;
+            }
+        });
+}, 5000);
 
 </script>
 

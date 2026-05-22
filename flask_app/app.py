@@ -1,100 +1,158 @@
-from flask import Flask, render_template, request, session
+# =========================
+# AXOMED APP.PY
+# CLEAN + SAFE + ANALYSIS FIXED
+# =========================
+
+from flask import Flask, render_template, request
 import pickle
 import pandas as pd
 from src.db import get_connection
 from flask_app.admin.routes import admin
 
-# ✅ CREATE APP FIRST
+# =========================
+# APP SETUP
+# =========================
+
 app = Flask(__name__)
-
-# ✅ CONFIG AFTER CREATION
 app.secret_key = "secret123"
-
-# ✅ REGISTER BLUEPRINT
 app.register_blueprint(admin)
 
-# ✅ LOAD MODEL
+# =========================
+# LOAD MODEL
+# =========================
+
 with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 
+# =========================
+# HELPER
+# =========================
 
-# ✅ HELPER FUNCTION
 def convert(x):
     return 1 if x == "yes" else 0
 
 
-# ✅ HOME PAGE
+def get_analysis(age, fever, cough, headache, fatigue):
+
+    symptoms = []
+
+    if fever:
+        symptoms.append("Fever")
+    if cough:
+        symptoms.append("Cough")
+    if headache:
+        symptoms.append("Headache")
+    if fatigue:
+        symptoms.append("Fatigue")
+
+    count = len(symptoms)
+
+    if count >= 4:
+        analysis = "Severe infection signs detected. Immediate medical attention recommended."
+    elif count == 3:
+        analysis = "Moderate infection symptoms detected. Monitor carefully."
+    elif count == 2:
+        analysis = "Mild symptoms detected. Rest and hydration recommended."
+    elif count == 1:
+        analysis = "Very mild symptoms detected."
+    else:
+        analysis = "No significant symptoms detected."
+
+    if age >= 60:
+        analysis += " High age risk factor present."
+    elif age <= 10:
+        analysis += " Child patient requires monitoring."
+
+    return analysis
+
+
+# =========================
+# HOME
+# =========================
+
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# ✅ PREDICTION ROUTE
+# =========================
+# PREDICTION
+# =========================
+
 @app.route("/predict", methods=["POST"])
 def predict():
 
-    name = request.form["name"]
-    age = int(request.form["age"])
+    name = request.form.get("name", "Unknown")
+    age = int(request.form.get("age", 0))
 
-    fever = convert(request.form["fever"])
-    cough = convert(request.form["cough"])
-    headache = convert(request.form["headache"])
-    fatigue = convert(request.form["fatigue"])
+    fever = convert(request.form.get("fever", "no"))
+    cough = convert(request.form.get("cough", "no"))
+    headache = convert(request.form.get("headache", "no"))
+    fatigue = convert(request.form.get("fatigue", "no"))
 
-    # ✅ MODEL INPUT
     input_data = pd.DataFrame(
         [[age, fever, cough, headache, fatigue]],
         columns=["age", "fever", "cough", "headache", "fatigue"]
     )
 
-    # ✅ PREDICTION
-    prediction = model.predict(input_data)[0]
+    prediction = str(model.predict(input_data)[0])
 
-    # ✅ RISK LEVEL
-    if prediction == "Critical Infection":
+    # =========================
+    # FIXED RISK LOGIC
+    # =========================
+
+    if "critical" in prediction.lower():
         risk = "HIGH"
-
-    elif prediction == "Viral Infection":
+    elif "viral" in prediction.lower():
         risk = "MEDIUM"
-
     else:
         risk = "LOW"
 
-    # ✅ SAVE TO DATABASE
+    risk = risk.upper()
+
+    # =========================
+    # ANALYSIS
+    # =========================
+
+    analysis = get_analysis(age, fever, cough, headache, fatigue)
+
+    # =========================
+    # DB SAVE (FIXED ❗ IMPORTANT)
+    # =========================
+
     conn = get_connection()
     cursor = conn.cursor()
 
-    sql = """
-    INSERT INTO patients
-    (name, age, fever, cough, headache, fatigue, risk_level)
-    VALUES (%s,%s,%s,%s,%s,%s,%s)
-    """
-
-    cursor.execute(
-        sql,
-        (
-            name,
-            age,
-            fever,
-            cough,
-            headache,
-            fatigue,
-            risk
-        )
-    )
+    cursor.execute("""
+        INSERT INTO patients
+        (name, age, fever, cough, headache, fatigue, risk_level, prediction)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+    """, (
+        name,
+        age,
+        fever,
+        cough,
+        headache,
+        fatigue,
+        risk,
+        prediction   # ✅ FIX: NOW SAVING PREDICTION
+    ))
 
     conn.commit()
     conn.close()
 
-    # ✅ RESULT PAGE
     return render_template(
         "result.html",
         name=name,
         prediction=prediction,
-        risk=risk
+        risk=risk,
+        analysis=analysis
     )
 
 
-# ✅ RUN SERVER
+# =========================
+# RUN SERVER
+# =========================
+
 if __name__ == "__main__":
     app.run(debug=True)
